@@ -2,7 +2,7 @@
 # vars file for criando-instancias
 instance_type: t2.medium
 sec_group_name: trubiscoso
-image: ami-0ab4d1e9cf9a1215a
+image: ami-09e67e426f25ce0d7
 keypair: formagi-aws
 region: us-east-1
 count: 3

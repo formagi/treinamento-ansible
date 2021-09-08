@@ -1,2 +1,7 @@
 ---
 # handlers file for install-k8s
+
+- name: reiniciar_docker
+  systemd:
+    name: docker
+    state: restarted
