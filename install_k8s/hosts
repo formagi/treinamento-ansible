@@ -1,8 +1,13 @@
 [k8s-master]
+3.80.46.42
 
 [k8s-workers]
+50.19.27.25
+54.167.135.250
 
 [k8s-workers:vars]
-K8S_MASTER_NODE_IP=
+K8S_MASTER_NODE_IP=172.31.29.133
 K8S_API_SECURE_PORT=6443
 
+[all:vars]
+ansible_user=ubuntu

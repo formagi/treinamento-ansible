@@ -1,6 +1,5 @@
 - hosts: all
   become: yes
-  user: ec2-user
   gather_facts: no
   pre_tasks:
     - name: 'atualizando o repo'
@@ -8,17 +7,14 @@
     - name: 'instalando o python'
       raw: 'apt install -y python'
   roles: 
-  - { role: install-k8s, tags: ["install_k8s_role"] }
+    - { role: install-k8s, tags: ["install_k8s_role"] }
 
 - hosts: k8s-master
   become: yes
-  user: ec2-user
   roles:
-  - { role: create_cluster, tags: ["create_cluster_role"] }
+    - { role: create-cluster, tags: ["create_cluster_role"] }
 
 - hosts: k8s-workers
   become: yes
-  user: ec2-user
   roles:
-  - { role: join_workers, tags: ["join_workers_role"] }
-
+    - { role: join-workers, tags: ["join_workers_role"] }

@@ -1,14 +1,24 @@
 - name: Instalando o Docker
   shell: curl -fsSL https://get.docker.com | bash
 
+- name: Adicionar arquivo daemon.json para docker
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: 0600
+    owner: root
+    group: root
+  notify:
+    - restart_docker
+
 - name: Adicionando as chaves do repo apt do k8s
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
 
 - name: Adicionando o repo do k8s
-  add_repo:
-    repo: https://apt.kubernetes.io/ kubernetes-xenial main
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     state: present
 
 - name: Instalando os pacotes kubeadm, kubelet e kubectl

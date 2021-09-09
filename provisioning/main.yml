@@ -1,3 +1,5 @@
 - hosts: local
   roles:
     - criando-instancias
+  vars:
+    - image: ami-09e67e426f25ce0d7

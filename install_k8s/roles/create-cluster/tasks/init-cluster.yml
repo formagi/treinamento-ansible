@@ -3,7 +3,7 @@
     kubeadm reset --force
   register: kubeadm_reset
 
-- name: Inicializando o cluester k8s
+- name: Inicializando o cluster k8s
   command:
     kubeadm init
   register: kubeadm_init
@@ -15,9 +15,9 @@
 
 - name: Linkando o arquivo admin.conf para o ~/.kube/config
   file:
-    src: /etc/admin.conf
-    dst: ~/.kube/config
-  state: link
+    src: /etc/kubernetes/admin.conf
+    dest: ~/.kube/config
+    state: link
 
 - name: Configurando o pod network Weavenet
   shell: kubectl apply -f {{ default_url_weavenet }}
