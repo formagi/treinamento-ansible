@@ -1,0 +1,4 @@
+---
+# vars file for install-helm
+url_heml: https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+tmp_helm_install_sh: /tmp/install_heml.sh

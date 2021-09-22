@@ -1,13 +1,24 @@
+[local]
+localhost ansible_connection=local ansible_python=python3.7 gather_facts=true
+
 [k8s-master]
-3.80.46.42
+54.82.94.112
 
 [k8s-workers]
-50.19.27.25
-54.167.135.250
+52.72.93.243
+54.167.66.42
 
 [k8s-workers:vars]
-K8S_MASTER_NODE_IP=172.31.29.133
+K8S_MASTER_NODE_IP=172.31.31.2
 K8S_API_SECURE_PORT=6443
 
 [all:vars]
 ansible_user=ubuntu
+
+[kubernetes]
+172.31.29.129
+172.31.23.50
+172.31.27.80
+18.208.251.149
+54.83.123.210
+3.95.14.231

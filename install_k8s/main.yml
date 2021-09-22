@@ -1,3 +1,10 @@
+- hosts: local
+  gather_facts: yes
+  roles:
+    - { role: provisioning-aws, tags: ["provisioning_aws_role"] }
+  vars:
+    - image: ami-09e67e426f25ce0d7
+  
 - hosts: all
   become: yes
   gather_facts: no
@@ -17,4 +24,14 @@
 - hosts: k8s-workers
   become: yes
   roles:
-    - { role: join-workers, tags: ["join_workers_role"] }
+  - { role: join-workers, tags: ["join_workers_role"] }
+
+- hosts: k8s-master
+  become: yes
+  roles:
+  - { role: install-helm, tags: ["install_helm3_role"] }
+
+- hosts: k8s-master
+  become: yes
+  roles:
+  - { role: install-monit-tools, tags: ["install_monit_tools_role"] }

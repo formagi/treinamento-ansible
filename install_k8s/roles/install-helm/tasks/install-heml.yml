@@ -1,0 +1,26 @@
+---
+
+- name: download heml
+  get_url:
+    url: "{{ url_heml }}"
+    dest: "{{ tmp_helm_install_sh }}"
+    mode: 0700
+  ignore_errors: true
+  register: helm_download
+
+- name: instalacao do helm
+  shell: "{{ tmp_helm_install_sh }}"
+  when: helm_download.failed|bool == false
+  register: helm_install
+
+- name:
+  debug: var=helm_install
+
+#"""
+#upgrade:
+#curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+#sudo apt-get install apt-transport-https --yes
+#echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+#sudo apt-get update
+#sudo apt-get install helm
+#"""
