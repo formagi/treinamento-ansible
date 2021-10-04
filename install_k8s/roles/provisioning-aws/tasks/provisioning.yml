@@ -1,3 +1,12 @@
+- name: check environment
+  assert:
+    that:
+      - instance_type is defined
+      - sec_group_name is defined
+      - keypair is defined
+      - profile is defined
+    msg: "Erro na definição de variáveis"
+
 - name: Criando o Sec Group
   local_action:
     module: ec2_group
@@ -61,6 +70,16 @@
       to_port: 6784
       cidr_ip: 0.0.0.0/0
       rule_desc: Weavenet
+    - proto: tcp
+      from_port: 32222
+      to_port: 32222
+      cidr_ip: 0.0.0.0/0
+      rule_desc: deploy app
+    - proto: tcp
+      from_port: 32111
+      to_port: 32111
+      cidr_ip: 0.0.0.0/0
+      rule_desc: app prometheus
     rules_egress:
     - proto: all
       cidr_ip: 0.0.0.0/0
@@ -79,57 +98,32 @@
     count: "{{ count }}"
   register: ec2
 
-- name: mostrar debug
-  debug:
-    msg: "private_ip: {{ item.private_ip }}, public_ip: {{ item.public_ip }}"
-  with_items: "{{ ec2.instances }}"
-  when: item.ami_launch_index == "0"
-
-# - name: adicionar host no temp inventory
-#   add_host:
-#     name: "ansible-{{ item.ami_launch_index|int + 1 }}"
-#     groups: recent_hosts
-#     public_ip: "{{ item.public_ip }}"
-#     private_ip: "{{ item.private_ip }}"
-#     var_trubiscu: "teste-{{ item.ami_launch_index|int + 1 }}"
-#   with_items: "{{ ec2.instances }}"
-#   register: tmp_inventory
-
-# - name:
-#   debug:
-#     msg: "{{ item }}"
-#   with_items: "{{ tmp_inventory.results }}"
-
-# - name: adicionar instancia ao inventario
-#   local_action: 
-#     module: lineinfile
-#     dest: "./hosts"
-#     line: "{{ item.name }} ansible_host={{ item.public_ip }} private_ip={{ item.private_ip }}"
-#     insertafter: [kubernetes]
-#   with_items: "{{ ec2.instances}}"
-#   when: {{ item.ami_launch_index }} == 1
-
-# - name: Adicionando a instancia ao inventario temp
-#  add_host: name={{ item.public_ip }} groups=trubiscoso_news
-#  with_items: "{{ ec2.instances }}"
-
-- name: Adicionando o IP Publico da instancia criada ao arquivo hosts
+- name: adicionando k8s-master ao inventario
   local_action: 
     module: lineinfile
-    dest: "./hosts"
-    regexp: "{{ item.public_ip }}"
-    insertafter: [kubernetes]
-    line: "{{ item.public_ip }}"
+    dest: "hosts"
+    line: "ansible-{{ item.ami_launch_index|int + 1 }} ansible_host={{ item.public_ip }} private_ip={{ item.private_ip }}"
+    insertafter: \[k8s_master\]
   with_items: "{{ ec2.instances }}"
+  when: item['ami_launch_index'] == '0'
 
-- name: Adicionando o IP Privado da instancia criada ao arquivo hosts
+- name: adicionando k8s-workers ao inventario
   local_action: 
     module: lineinfile
-    dest: "./hosts"
-    regexp: "{{ item.private_ip }}"
-    insertafter: [kubernetes]
-    line: "{{ item.private_ip }}"
+    dest: "hosts"
+    line: "ansible-{{ item.ami_launch_index|int + 1 }} ansible_host={{ item.public_ip }} private_ip={{ item.private_ip }}"
+    insertafter: \[k8s_workers\]
   with_items: "{{ ec2.instances }}"
+  when: item['ami_launch_index'] != '0'
+
+- name: adicionando private_ip nos vars do grupo workers
+  local_action: 
+    module: lineinfile
+    dest: "hosts"
+    line: "K8S_MASTER_NODE_IP={{ item.private_ip }}"
+    regexp: K8S_MASTER_NODE_IP
+  with_items: "{{ ec2.instances }}"
+  when: item['ami_launch_index'] == '0'
 
 - name: Esperando o SSH
   local_action: 

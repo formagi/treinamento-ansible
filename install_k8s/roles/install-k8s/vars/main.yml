@@ -1,2 +1,6 @@
 ---
 # vars file for install-k8s
+url_repo_docker: https://download.docker.com/linux/ubuntu/gpg
+repo_docker: "deb https://download.docker.com/linux/ubuntu focal stable"
+url_repo_k8s: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+repo_k8s: "deb https://apt.kubernetes.io/ kubernetes-xenial main"

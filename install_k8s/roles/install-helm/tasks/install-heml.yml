@@ -1,26 +1,56 @@
 ---
+- name: check environment
+  assert:
+    that:
+      - url_heml is defined
+      - tmp_helm_install_sh is defined
+    msg: "Erro na definição de variáveis"
 
-- name: download heml
+- name: Download helm
   get_url:
     url: "{{ url_heml }}"
     dest: "{{ tmp_helm_install_sh }}"
-    mode: 0700
+    mode: 0775
   ignore_errors: true
-  register: helm_download
+  register: download
 
-- name: instalacao do helm
-  shell: "{{ tmp_helm_install_sh }}"
-  when: helm_download.failed|bool == false
-  register: helm_install
+- name: Instalando Helm
+  shell:
+    "{{ tmp_helm_install_sh }}"
+  when:
+    - download.failed|bool == false
+  register: install_helm
 
 - name:
-  debug: var=helm_install
+  debug: var=install_helm
 
-#"""
-#upgrade:
-#curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
-#sudo apt-get install apt-transport-https --yes
-#echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-#sudo apt-get update
-#sudo apt-get install helm
-#"""
+## Instalação do help via pacote apt
+
+# - name: check environment
+#   assert:
+#     that:
+#       - url_repo_help is defined
+#       - repo_helm is defined
+#     msg: "Erro na definição de variáveis"
+
+# - name: installar apt-transport-https
+#   apt:
+#     name: apt-transport-https
+#     state: latest
+
+# - name: adicionando as chaves do repo apt do helm
+#   apt_key:
+#     url: "{{ url_repo_help }}"
+#     state: present
+
+# - name: adicionando repo do helm
+#   apt_repository:
+#     repo: "{{ repo_helm }}"
+#     state: present
+#     update_cache: yes
+
+# - name: instalando helm via apt
+#   apt:
+#     name: helm
+#     state: latest
+#     update_cache: yes

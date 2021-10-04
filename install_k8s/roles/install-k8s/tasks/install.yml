@@ -1,5 +1,39 @@
-- name: Instalando o Docker
-  shell: curl -fsSL https://get.docker.com | bash
+- name: check environment
+  assert:
+    that:
+      - url_repo_docker is defined
+      - repo_docker is defined
+      - url_repo_k8s is defined
+      - repo_k8s is defined
+    msg: "Erro na definição de variáveis"
+
+- name: remover pacotes antigo do docker
+  apt:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd runc
+    state: absent
+
+- name: adicionando as chaves do repo apt do docker
+  apt_key:
+    url: "{{ url_repo_docker }}"
+    state: present
+
+- name: adicionando repo do docker
+  apt_repository:
+    repo: "{{ repo_docker }}"
+    state: present
+
+- name: instalar pacotes do docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+    update_cache: yes
 
 - name: Adicionar arquivo daemon.json para docker
   copy:
@@ -13,19 +47,18 @@
 
 - name: Adicionando as chaves do repo apt do k8s
   apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    url: "{{ url_repo_k8s }}"
     state: present
 
 - name: Adicionando o repo do k8s
   apt_repository:
-    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    repo: "{{ repo_k8s }}"
     state: present
 
 - name: Instalando os pacotes kubeadm, kubelet e kubectl
   apt:
-    name: "{{ packages }}"
-  vars:
-    packages:
-    - kubelet
-    - kubeadm
-    - kubectl
+    name: 
+      - kubelet
+      - kubeadm
+      - kubectl
+    update_cache: yes

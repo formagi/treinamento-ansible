@@ -1,24 +1,23 @@
 [local]
-localhost ansible_connection=local ansible_python=python3.7 gather_facts=true
+localhost ansible_connection=local gather_facts=false
 
-[k8s-master]
-54.82.94.112
+[k8s_master]
+ansible-1 ansible_host=54.163.41.13 private_ip=172.31.28.25
 
-[k8s-workers]
-52.72.93.243
-54.167.66.42
+[k8s_master:vars]
+MASTER_TOKEN=m6lk32.dnoqew9pxq3kfchi
+MASTER_HASH=00bb96d1a934f76531d3461cf4222f05c5577b4577c06eea8573f98ab2327230
 
-[k8s-workers:vars]
-K8S_MASTER_NODE_IP=172.31.31.2
+[k8s_workers]
+ansible-2 ansible_host=3.87.123.109 private_ip=172.31.26.89
+ansible-3 ansible_host=54.146.241.62 private_ip=172.31.27.45
+
+[k8s_workers:vars]
+K8S_MASTER_NODE_IP=172.31.28.25
 K8S_API_SECURE_PORT=6443
 
 [all:vars]
 ansible_user=ubuntu
+ansible_python_interpreter=python3
 
 [kubernetes]
-172.31.29.129
-172.31.23.50
-172.31.27.80
-18.208.251.149
-54.83.123.210
-3.95.14.231

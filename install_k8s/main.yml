@@ -1,11 +1,33 @@
-- hosts: local
+- name: restore temp hosts to hosts
+  hosts: local
+  gather_facts: yes
+  tags: "restore_hosts_role"
+  post_tasks:
+    - name: post_tasks atualizar arquivo hosts
+      meta: refresh_inventory
+  tasks:
+    - name: restaurar arquivo hosts
+      copy:
+        src: ./hosts.tmp
+        dest: ./hosts
+
+- name:  provisioning hosts on aws
+  hosts: local
   gather_facts: yes
   roles:
     - { role: provisioning-aws, tags: ["provisioning_aws_role"] }
   vars:
-    - image: ami-09e67e426f25ce0d7
-  
-- hosts: all
+    - instance_type: t2.medium
+    - sec_group_name: trubiscoso
+    - keypair: formagi-aws
+    - profile: trubiscu
+  post_tasks:
+    - name: post_tasks atualizar arquivo hosts
+      meta: refresh_inventory
+
+- name: intall k8s for all hosts
+  hosts: all
+  strategy: free
   become: yes
   gather_facts: no
   pre_tasks:
@@ -16,22 +38,45 @@
   roles: 
     - { role: install-k8s, tags: ["install_k8s_role"] }
 
-- hosts: k8s-master
+- name: init clustes k8s
+  hosts: k8s_master
   become: yes
   roles:
     - { role: create-cluster, tags: ["create_cluster_role"] }
+  post_tasks:
+    - name: post_tasks atualizar arquivo hosts
+      meta: refresh_inventory
 
-- hosts: k8s-workers
+- name: join workers on k8s cluster
+  hosts: k8s_workers
+  strategy: free
   become: yes
   roles:
-  - { role: join-workers, tags: ["join_workers_role"] }
+    - { role: join-workers, tags: ["join_workers_role"] }
 
-- hosts: k8s-master
+- name: install helm
+  hosts: k8s_master
   become: yes
   roles:
-  - { role: install-helm, tags: ["install_helm3_role"] }
+    - { role: install-helm, tags: ["install_helm3_role"] }
 
-- hosts: k8s-master
+- name: install stack prometheus
+  hosts: k8s_master
   become: yes
   roles:
-  - { role: install-monit-tools, tags: ["install_monit_tools_role"] }
+    - { role: install-monit-tools, tags: ["install_monit_tools_role"] }
+
+- name: deploy-app-v1
+  hosts: k8s_master
+  become: yes
+  roles:
+    - { role: deploy-app, tags: ["deploy_app_role"] }
+
+# Use desta role apenas para exemplificar um  update do primeiro deploy
+# - name: deploy-app-v2
+#   hosts: k8s_master
+#   become: yes
+#   vars:
+#     app_version: "1.0"
+#   roles:
+#     - { role: deploy-app-v2, tags: ["deploy_app_v2_role"] }

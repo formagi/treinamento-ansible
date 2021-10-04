@@ -1,0 +1,60 @@
+- name: install pip
+  apt:
+    name: python3-pip
+    state: latest
+
+- name: install dependencia do modulo k8s
+  pip:
+    name:
+      - openshift
+      - PyYAML
+    state: latest
+
+- name: criando o diretorio de app Giropops
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /opt/giropops
+    - /opt/giropops/log
+    - /opt/giropops/conf
+
+- name: copiando arquivo de deployment do app v1
+  template:
+    src: app-v1.yml.j2
+    dest: /opt/giropops/app-v1.yml
+    group: root
+    owner: root
+    mode: 0644
+  register: deploy_app_v1
+
+- name: copiando arquivo de deployment do app v2
+  template:
+    src: app-v2.yml.j2
+    dest: /opt/giropops/app-v2.yml
+    group: root
+    owner: root
+    mode: 0644
+  register: deploy_app_v2
+
+- name: deploy da app-v2
+  k8s:
+    src: /opt/giropops/app-v2.yml
+    state: present
+    namespace: default
+
+- name: scale down app-v1
+  k8s:
+    src: /opt/giropops/app-v1.yml
+    state: present
+    namespace: default
+
+- name: sleep 2minutos para remover app-v1
+  pause:
+    minutes: 2
+
+- name: removendo app-v1
+  k8s:
+    src: /opt/giropops/app-v1.yml
+    state: absent
+    namespace: default

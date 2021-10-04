@@ -1,5 +1,13 @@
+---
+- name: check environment
+  assert:
+    that:
+      - url_prometheus is defined
+      - deploy_prometheus is defined
+    msg: "Erro na definição de variáveis"
+
 - name: helm add repo prometheus-community
-  shell: helm repo add prometheus-community {{ url_repo_helm }}
+  shell: helm repo add prometheus-community {{ url_prometheus }}
   register: prometheus_add_repo
 
 - name: helm update

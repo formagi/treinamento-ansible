@@ -2,3 +2,7 @@
 # vars file for install-helm
 url_heml: https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 tmp_helm_install_sh: /tmp/install_heml.sh
+
+## Para instalação do helm via pacote apt
+# url_repo_help: https://baltocdn.com/helm/signing.asc
+# repo_helm: "deb https://baltocdn.com/helm/stable/debian/ all main"

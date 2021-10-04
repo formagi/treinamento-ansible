@@ -1,10 +1,10 @@
 - name: 
   debug:
-    msg: "[WORKER] K8S_TOKEN_HOLDER - O token eh {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+    msg: "[WORKER] K8S_TOKEN_HOLDER - O token eh {{ hostvars['ansible-1']['MASTER_TOKEN'] }}"
 
 - name: 
   debug:
-    msg: "[WORKER] K8S_TOKEN_HOLDER - O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+    msg: "[WORKER] K8S_TOKEN_HOLDER - O hash eh {{ hostvars['ansible-1']['MASTER_HASH'] }}"
 
 - name: Removendo o cluster
   command:
@@ -13,6 +13,6 @@
 
 - name: Adicionando o worker ao clustes k8s
   shell:
-    kubeadm join --token={{ hostvars['K8S_TOKEN_HOLDER']['token'] }}
-    --discovery-token-ca-cert-hash sha256:{{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}
+    kubeadm join --token={{ hostvars['ansible-1']['MASTER_TOKEN'] }}
+    --discovery-token-ca-cert-hash sha256:{{ hostvars['ansible-1']['MASTER_HASH'] }}
     {{K8S_MASTER_NODE_IP}}:{{K8S_API_SECURE_PORT}}

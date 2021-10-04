@@ -1,3 +1,9 @@
+- name: check environment
+  assert:
+    that:
+      - default_url_weavenet is defined
+    msg: "Erro na definição de variáveis"
+
 - name: Removendo cluster antigo
   command:
     kubeadm reset --force
@@ -31,16 +37,38 @@
   shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
   register: k8s_master_ca_hash
 
-- name: Adicionando o token e o hash dummy host
-  add_host:
-    name: "K8S_TOKEN_HOLDER"
-    token: "{{ k8s_token.stdout }}"
-    hash: "{{ k8s_master_ca_hash.stdout }}"
+# - name: Adicionando o token e o hash dummy host
+#   add_host:
+#     name: "K8S_TOKEN_HOLDER"
+#     token: "{{ k8s_token.stdout }}"
+#     hash: "{{ k8s_master_ca_hash.stdout }}"
+
+- name: adicionar MASTER_TOKEN nas vars do inventory
+  local_action: 
+    module: lineinfile
+    dest: "hosts"
+    line: "MASTER_TOKEN={{ k8s_token.stdout }}"
+    regexp: MASTER_TOKEN
+
+- name: adicionar MASTER_HASH nas vars do inventory
+  local_action: 
+    module: lineinfile
+    dest: "hosts"
+    line: "MASTER_HASH={{ k8s_master_ca_hash.stdout }}"
+    regexp: MASTER_HASH
+
+# - name:
+#   debug:
+#     msg: " [MASTER] K8S_TOKEN_HOLDER - O token eh {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+# - name:
+#   debug:
+#     msg: " [MASTER] K8S_TOKEN_HOLDER - O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
 
 - name:
   debug:
-    msg: " [MASTER] K8S_TOKEN_HOLDER - O token eh {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+    msg: " [MASTER] K8S_TOKEN_HOLDER - O token eh {{ k8s_token.stdout }}"
 
 - name:
   debug:
-    msg: " [MASTER] K8S_TOKEN_HOLDER - O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+    msg: " [MASTER] K8S_TOKEN_HOLDER - O hash eh {{ k8s_master_ca_hash.stdout }}"
