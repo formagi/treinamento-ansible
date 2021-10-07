@@ -1,4 +1,0 @@
-[local]
-localhost ansible_connection=local ansible_python=python3.7 gather_facts=false
-
-[kubernetes]

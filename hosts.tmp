@@ -1,0 +1,20 @@
+[local]
+localhost ansible_connection=local gather_facts=false
+
+[k8s_master]
+
+[k8s_master:vars]
+MASTER_TOKEN=
+MASTER_HASH=
+
+[k8s_workers]
+
+[k8s_workers:vars]
+K8S_MASTER_NODE_IP=
+K8S_API_SECURE_PORT=6443
+
+[all:vars]
+ansible_user=ubuntu
+ansible_python_interpreter=python3
+
+[kubernetes]
