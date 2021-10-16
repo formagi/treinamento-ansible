@@ -15,7 +15,7 @@
   hosts: local
   gather_facts: yes
   roles:
-    - { role: provisioning-aws, tags: ["provisioning_aws_role"] }
+    - role: provisioning-aws
   vars:
     - instance_type: t2.medium
     - sec_group_name: trubiscoso
@@ -24,6 +24,7 @@
   post_tasks:
     - name: post_tasks atualizar arquivo hosts
       meta: refresh_inventory
+  tags: provisioning_aws_role
 
 - name: intall k8s for all hosts
   hosts: all
@@ -36,41 +37,47 @@
     - name: 'instalando o python'
       raw: 'apt install -y python'
   roles: 
-    - { role: install-k8s, tags: ["install_k8s_role"] }
+    - role: install-k8s
+  tags: install_k8s_role
 
 - name: init clustes k8s
   hosts: k8s_master
   become: yes
   roles:
-    - { role: create-cluster, tags: ["create_cluster_role"] }
+    - role: create-cluster
   post_tasks:
     - name: post_tasks atualizar arquivo hosts
       meta: refresh_inventory
+  tags: create_cluster_role
 
 - name: join workers on k8s cluster
   hosts: k8s_workers
   strategy: free
   become: yes
   roles:
-    - { role: join-workers, tags: ["join_workers_role"] }
+    - role: join-workers
+  tags: join_workers_role
 
 - name: install helm
   hosts: k8s_master
   become: yes
   roles:
-    - { role: install-helm, tags: ["install_helm3_role"] }
+    - role: install-helm
+  tags: install_helm3_role
 
 - name: install stack prometheus
   hosts: k8s_master
   become: yes
   roles:
-    - { role: install-monit-tools, tags: ["install_monit_tools_role"] }
+    - role: install-monit-tools
+  tags: install_monit_tools_role
 
 - name: deploy-app-v1
   hosts: k8s_master
   become: yes
   roles:
-    - { role: deploy-app, tags: ["deploy_app_role"] }
+    - role: deploy-app
+  tags: deploy_app_role
 
 # Use desta role apenas para exemplificar um  update do primeiro deploy
 # - name: deploy-app-v2
@@ -79,4 +86,5 @@
 #   vars:
 #     app_version: "1.0"
 #   roles:
-#     - { role: deploy-app-v2, tags: ["deploy_app_v2_role"] }
+#     - role: deploy-app-v2
+#   tags: deploy_app_v2_role

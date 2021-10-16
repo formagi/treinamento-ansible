@@ -62,3 +62,35 @@
       - kubeadm
       - kubectl
     update_cache: yes
+
+- name: install bash auto-completion
+  apt:
+    update_cache: yes
+    name: bash-completion
+    state: latest
+
+# - name: reload bash-completion
+#   shell: source /usr/share/bash-completion/bash_completion
+
+- name: add kubectl completion bash into .bashrc
+  shell: echo 'source <(kubectl completion bash)' >>~/.bashrc
+  register: kubectl_completion_bash
+
+- name: show log
+  debug:
+    msg: "{{ kubectl_completion_bash }}"
+
+- name: add kubectl completion bash into kubetcl
+  shell: kubectl completion bash >/etc/bash_completion.d/kubectl
+  register: kubectl_completion_kubectl
+
+- name: show log
+  debug:
+    msg: "{{ kubectl_completion_kubectl }}"
+
+- name: create alias
+  lineinfile:
+    state: present
+    insertafter: EOF
+    path: ~/.bashrc
+    line: "alias k=kubectl\ncomplete -F __start_kubectl k"
